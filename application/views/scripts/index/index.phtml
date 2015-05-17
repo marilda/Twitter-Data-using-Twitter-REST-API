@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	
+	<title>eKomi Twitter Feed</title>
+	
+	<!-- Bootstrap core CSS -->
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	
+	<!-- Custom styles  -->
+	<link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+	<div class="header clearfix">
+		<nav>
+		<ul class="nav nav-pills pull-right">
+			<li role="presentation" class="active"><a href="/">Home</a></li>
+			<li role="presentation"><a href="/index/cron">Cron / Perform Update</a></li>
+			<li role="presentation"><a href="#">About</a></li>
+	
+		</ul>
+		</nav>
+		<h3 class="text-muted">eKomi - The Feedback Company</h3>
+	</div>
+
+	<div class="jumbotron">
+		<h1>eKomi Tweets</h1>
+		<p class="lead">This is a list of statutes published in the eKomi Twitter account. Tweets are locally stored in a database and are displayed in a twitter widget like design.</p>
+	</div>
+
+	<div id="twitter-feed">
+		<a target="_blank" href="https://twitter.com/">
+			<img width="34" alt="twitter bird" style="float:left;padding:3px 12px 0px 6px" src="img/twitter-bird-light.png">
+		</a>
+		<h1>eKomi
+			<span style="font-size:13px"><a target="_blank" href="https://twitter.com/ekomi">@eKomi</a></span>
+		</h1>
+		<?php 
+		if (count($this->tweets) > 0){
+			foreach ($this->tweets as $tweet){
+				if($tweet->retweeted_screen_name != null){
+					$profile_pic = $tweet->retweeted_profile_image_url;
+					$screen_name = $tweet->retweeted_screen_name; 
+				}
+				else {
+					$profile_pic = $tweet->profile_image_url;
+					$screen_name = $tweet->screen_name;  
+				}
+				$twit = preg_replace("/(http:\/\/)(.*?)\/([\w\.\/\&\=\?\-\,\:\;\#\_\~\%\+]*)/", "<a target=\"_blank\" href=\"\\0\">\\0</a>", $tweet->tweet_text);
+				$twit = preg_replace("(@([a-zA-Z0-9\_]+))", "<a target=\"_blank\" href=\"http://www.twitter.com/\\1\">\\0</a>", $twit);
+				$twit = preg_replace('/(^|\s)#(\w+)/', '\1<a target=\"_blank\" href="https://twitter.com/search?q=%23\2">#\2</a>', $twit);
+	
+			?>
+			<div id="tw1" class="twitter-article">
+				<div class="twitter-pic">
+					<a target="_blank" href="https://twitter.com/tomwebdev">
+					<img width="42" height="42" alt="twitter icon" twitter-feed-icon.png"="" images="" src="<?=$profile_pic?>"/>
+					</a>
+				</div>
+				
+				<div class="twitter-text">
+					<p>
+						<span class="tweetprofilelink">
+							<strong><a target="_blank" href="https://twitter.com/<?php if($tweet->retweeted_screen_name != null) echo $tweet->retweeted_screen_name; else echo $tweet->screen_name;  ?>"><?php if($tweet->retweeted_fullname != null) echo "RT: ".$tweet->retweeted_fullname; else echo $tweet->fullname;  ?></a></strong>
+							<a target="_blank" href="https://twitter.com/<?php if($tweet->retweeted_screen_name != null) echo $tweet->retweeted_screen_name; else echo $tweet->screen_name;  ?>">@<?php if($tweet->retweeted_screen_name != null) echo $tweet->retweeted_screen_name; else echo $tweet->screen_name;  ?></a>
+						</span>
+						<span class="tweet-time"><a target="_blank" href="https://twitter.com/<?=$screen_name?>/status/<?=$tweet->id_str?>"><?=gmdate('F jS Y, H:i', $tweet->created_at);?></a></span>
+						<br>
+						<?=$twit?>
+						<a target="_blank" href="http://t.co/r9hvtJ1tbb"></a>
+					</p>
+					<div id="twitter-actions" >
+						<div id="intent-reply" class="intent"><a title="Reply" href="https://twitter.com/intent/tweet?in_reply_to=<?=$tweet->id_str?>"></a></div>
+						<div id="intent-retweet" class="intent"><a title="Retweet" href="https://twitter.com/intent/retweet?tweet_id=<?=$tweet->id_str?>"></a></div>
+						<div id="intent-fave" class="intent"><a title="Favourite" href="https://twitter.com/intent/favorite?tweet_id=<?=$tweet->id_str?>"></a></div>
+					</div>
+				</div>
+			</div>
+			<?php 
+			}
+		}
+		else {
+			echo "There are no tweets in the database!";
+		}?>
+	</div><!-- end of tweets list -->
+
+	<footer class="footer">
+		<p>&copy; Company 2015</p>
+	</footer>
+
+</div> <!-- /container -->
+</body>
+</html>
